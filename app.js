@@ -122,6 +122,11 @@ const competitorList = document.querySelector("#competitorList");
 const assetList = document.querySelector("#assetList");
 const projectLibrarySelect = document.querySelector("#projectLibrarySelect");
 const toast = document.querySelector("#toast");
+const aiStatus = document.querySelector("#aiStatus");
+const aiTextOutput = document.querySelector("#aiTextOutput");
+const aiImagePreview = document.querySelector("#aiImagePreview");
+
+let lastAiImage = "";
 
 function numberValue(id) {
   return Number(fields[id].value || 0);
@@ -1927,6 +1932,152 @@ async function copyText(id) {
   showToast("已复制");
 }
 
+async function apiJson(url, payload) {
+  const response = await fetch(url, {
+    method: payload ? "POST" : "GET",
+    headers: payload ? { "Content-Type": "application/json" } : undefined,
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "请求失败");
+  return data;
+}
+
+async function checkAiStatus() {
+  try {
+    const data = await apiJson("/api/ai/status");
+    aiStatus.textContent = data.configured
+      ? `已配置：文案 ${data.textModel} / 图像 ${data.imageModel}`
+      : `未配置 OPENAI_API_KEY：文案 ${data.textModel} / 图像 ${data.imageModel}`;
+    aiStatus.classList.toggle("ok", data.configured);
+  } catch (error) {
+    aiStatus.textContent = `检查失败：${error.message}`;
+    aiStatus.classList.remove("ok");
+  }
+}
+
+function aiPayload(mode) {
+  syncCompetitors();
+  const product = productData();
+  const comparison = compareMetrics(product);
+  return {
+    task: mode,
+    instruction:
+      "文案归文案。请只输出可复制的中文营销文案/策略建议。图片提示词可以写，但不要声称已经生成图片。竞品对比必须严格使用输入数据。",
+    product,
+    competitors,
+    comparisonHeadline: comparison.headline,
+    currentDrafts: {
+      post: outputs.post.textContent,
+      variants: outputs.variants.textContent,
+      comments: outputs.comments.textContent,
+      leads: outputs.leads.textContent,
+      review: outputs.review.textContent,
+    },
+  };
+}
+
+async function generateAiText() {
+  const mode = selectedValue("aiTextMode");
+  aiTextOutput.textContent = "AI 文案生成中...";
+  try {
+    const data = await apiJson("/api/ai/text", aiPayload(mode));
+    aiTextOutput.textContent = data.text || "模型没有返回文本。";
+    showToast("AI 文案已生成");
+  } catch (error) {
+    aiTextOutput.textContent = `AI 文案失败：${error.message}`;
+    showToast("AI 文案失败");
+  }
+}
+
+function imagePromptForModel() {
+  const product = productData();
+  return `生成一张空气净化器营销主视觉，不要生成表格，不要生成可读小字，不要生成竞品对比图。画面是一台现代白色家用空气净化器，放在明亮真实的${product.scene}，适合${product.audience}，高级家电摄影，柔和自然光，干净空间，空气流动可视化，留出左上方大面积空白给后期排版。不要出现竞品 logo，不要出现夸张医疗场景，不要出现无法证明的功效数字。`;
+}
+
+async function generateAiImage() {
+  aiImagePreview.textContent = "AI 主视觉生成中...";
+  lastAiImage = "";
+  try {
+    const data = await apiJson("/api/ai/image", {
+      prompt: imagePromptForModel(),
+      size: "1024x1536",
+      quality: "medium",
+    });
+    lastAiImage = data.image || "";
+    aiImagePreview.innerHTML = lastAiImage
+      ? `<img src="${lastAiImage}" alt="AI 生成空气净化器主视觉" />`
+      : "模型没有返回图片。";
+    showToast("AI 主视觉已生成");
+  } catch (error) {
+    aiImagePreview.textContent = `AI 图片失败：${error.message}`;
+    showToast("AI 图片失败");
+  }
+}
+
+function preciseCompareSvg() {
+  const product = productData();
+  const comparison = compareMetrics(product);
+  const rows = [
+    [`${product.brand} ${product.model}`, product.cadr || "待填", `${product.area || "待填"}㎡`, `${product.noise || "待填"}dB`, formatMoney(product.price), moneyNumber(annualCost(product, product).total), "当前项目录入"],
+    ...comparison.valid.map((item) => [
+      item.name,
+      item.cadr || "待填",
+      `${item.area || "待填"}㎡`,
+      `${item.noise || "待填"}dB`,
+      formatMoney(item.price),
+      moneyNumber(annualCost(item, product).total),
+      sourceLine(item),
+    ]),
+  ];
+  const safe = (value) => escapeHtml(String(value));
+  const header = ["产品", "CADR", "面积", "噪音", "价格", "年成本", "来源"];
+  const widths = [250, 110, 120, 120, 140, 150, 300];
+  const xPositions = widths.reduce((acc, width, index) => {
+    acc.push(index ? acc[index - 1] + widths[index - 1] : 50);
+    return acc;
+  }, []);
+  const rowHeight = 74;
+  const tableWidth = widths.reduce((sum, width) => sum + width, 0);
+  const height = 230 + rowHeight * rows.length;
+  const cells = (row, y, isHeader = false, highlight = false) =>
+    row
+      .map((cell, index) => {
+        const x = xPositions[index];
+        const fill = highlight ? "#e8f5f3" : isHeader ? "#263436" : "#ffffff";
+        const text = isHeader ? "#ffffff" : highlight ? "#0a5f58" : "#263436";
+        return `<rect x="${x}" y="${y}" width="${widths[index]}" height="${rowHeight}" fill="${fill}" stroke="#dce5e3"/>
+<text x="${x + 14}" y="${y + 42}" fill="${text}" font-size="${isHeader ? 22 : 19}" font-family="Microsoft YaHei, Arial" font-weight="${isHeader || highlight ? 800 : 500}">${safe(cell).slice(0, index === 6 ? 22 : 16)}</text>`;
+      })
+      .join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${tableWidth + 100}" height="${height}" viewBox="0 0 ${tableWidth + 100} ${height}">
+<rect width="100%" height="100%" fill="#f5f7f8"/>
+<text x="50" y="70" fill="#172224" font-size="42" font-family="Microsoft YaHei, Arial" font-weight="900">空气净化器竞品对比</text>
+<text x="50" y="116" fill="#657376" font-size="22" font-family="Microsoft YaHei, Arial">确定性渲染：数字和中文由表单数据生成，不由图像模型猜写</text>
+<text x="50" y="154" fill="#0a5f58" font-size="24" font-family="Microsoft YaHei, Arial" font-weight="800">${safe(comparison.headline)}</text>
+${cells(header, 185, true)}
+${rows.map((row, index) => cells(row, 185 + rowHeight * (index + 1), false, index === 0)).join("")}
+<text x="50" y="${height - 30}" fill="#72510d" font-size="18" font-family="Microsoft YaHei, Arial">发布前请核对竞品型号、来源日期、检测报告和实时活动价。</text>
+</svg>`;
+}
+
+function downloadPreciseCompareSvg() {
+  downloadText("albers-precise-competitor-comparison.svg", preciseCompareSvg(), "image/svg+xml;charset=utf-8");
+  showToast("已下载精准对比图");
+}
+
+function downloadAiImage() {
+  if (!lastAiImage) {
+    showToast("还没有 AI 图片");
+    return;
+  }
+  const link = document.createElement("a");
+  link.href = lastAiImage;
+  link.download = "albers-ai-visual.png";
+  link.click();
+}
+
 function currentState() {
   syncCompetitors();
   const product = productData();
@@ -2151,6 +2302,11 @@ document.querySelector("#exportBtn").addEventListener("click", exportAll);
 document.querySelector("#exportCsvBtn").addEventListener("click", exportCsvBundle);
 document.querySelector("#exportExcelBtn").addEventListener("click", exportExcelWorkbook);
 document.querySelector("#printBtn").addEventListener("click", printReport);
+document.querySelector("#checkAiBtn").addEventListener("click", checkAiStatus);
+document.querySelector("#aiTextBtn").addEventListener("click", generateAiText);
+document.querySelector("#aiImageBtn").addEventListener("click", generateAiImage);
+document.querySelector("#downloadAiImageBtn").addEventListener("click", downloadAiImage);
+document.querySelector("#downloadCompareSvgBtn").addEventListener("click", downloadPreciseCompareSvg);
 document.querySelector("#exportProjectBtn").addEventListener("click", exportProject);
 document.querySelector("#saveProjectLibraryBtn").addEventListener("click", saveCurrentProjectToLibrary);
 document.querySelector("#loadProjectLibraryBtn").addEventListener("click", loadProjectFromLibrary);

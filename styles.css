@@ -362,6 +362,23 @@ textarea:focus {
   margin: 0;
 }
 
+.ai-status {
+  padding: 10px 11px;
+  border: 1px solid rgba(217, 95, 67, 0.24);
+  border-radius: 6px;
+  background: rgba(217, 95, 67, 0.08);
+  color: #8a3c2a;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.ai-status.ok {
+  border-color: rgba(15, 127, 117, 0.26);
+  background: rgba(15, 127, 117, 0.1);
+  color: var(--teal-dark);
+}
+
 .workspace {
   min-width: 0;
   padding: 28px;
@@ -686,6 +703,25 @@ pre {
   overflow: hidden;
   position: relative;
   padding: 26px;
+}
+
+.ai-image-preview {
+  display: grid;
+  place-items: center;
+  min-height: 520px;
+  padding: 18px;
+  background: #f7faf9;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.ai-image-preview img {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
 }
 
 .poster-blue {

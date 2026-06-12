@@ -18,6 +18,25 @@ http://127.0.0.1:5173/index.html
 
 也可以直接用浏览器打开 `index.html`，但部分浏览器可能限制复制、下载或导入等本地文件能力。
 
+## 接入大模型
+
+文案和图像是两条独立链路：
+
+- 文案：走本地代理 `/api/ai/text`，调用 OpenAI Responses API
+- 图像：走本地代理 `/api/ai/image`，调用 OpenAI Image API
+- 竞品对比图：不交给图像模型生成，而是由本地 SVG 确定性渲染，保证中文、数字、单位和来源准确
+
+启动前设置环境变量：
+
+```powershell
+$env:OPENAI_API_KEY="你的 API Key"
+$env:OPENAI_TEXT_MODEL="gpt-4.1"
+$env:OPENAI_IMAGE_MODEL="gpt-image-1"
+node dev-server.mjs
+```
+
+如果不设置 `OPENAI_API_KEY`，本地模板功能仍然可用，AI 文案/AI 主视觉按钮会提示未配置。
+
 ## 功能
 
 - 录入项目名称和行动引导语
@@ -37,6 +56,8 @@ http://127.0.0.1:5173/index.html
 - 生成多版本标题、开头、CTA 和封面字
 - 生成海报预览和可下载 SVG 海报
 - 生成 AI 生图提示词，方便交给生图工具做宣传主视觉
+- 接入 AI 文案生成和 AI 主视觉生成
+- 下载精准竞品对比 SVG，避免图片模型生成表格时写错中文或数字
 - 生成评论区互动话题、官方回复、二级回复
 - 生成评论矩阵，覆盖种草、提问、理性对比和官方承接
 - 竞品对比结论只基于当前录入参数生成

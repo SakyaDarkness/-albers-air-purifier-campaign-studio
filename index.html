@@ -215,6 +215,24 @@
         </section>
 
         <section class="panel-section">
+          <h2>AI 模型</h2>
+          <div id="aiStatus" class="ai-status">未检查</div>
+          <div class="segmented" role="radiogroup" aria-label="AI 文案任务">
+            <label><input type="radio" name="aiTextMode" value="rewrite" checked />润色</label>
+            <label><input type="radio" name="aiTextMode" value="xiaohongshu" />小红书</label>
+            <label><input type="radio" name="aiTextMode" value="sales" />销售</label>
+          </div>
+          <div class="action-row">
+            <button id="checkAiBtn" class="text-btn grow" type="button">检查模型</button>
+            <button id="aiTextBtn" class="primary-btn" type="button">AI 生成文案</button>
+          </div>
+          <div class="action-row">
+            <button id="aiImageBtn" class="text-btn grow" type="button">AI 生成主视觉</button>
+            <button id="downloadCompareSvgBtn" class="text-btn grow" type="button">下载精准对比图</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
           <div class="section-title-row">
             <h2>证据素材</h2>
             <button id="addAssetBtn" class="text-btn" type="button">上传</button>
@@ -287,6 +305,7 @@
           <button class="tab" type="button" data-tab="variants">文案版本</button>
           <button class="tab" type="button" data-tab="poster">海报</button>
           <button class="tab" type="button" data-tab="imagePrompt">生图提示词</button>
+          <button class="tab" type="button" data-tab="ai">AI 输出</button>
           <button class="tab" type="button" data-tab="comments">评论</button>
           <button class="tab" type="button" data-tab="matrix">评论矩阵</button>
           <button class="tab" type="button" data-tab="replies">评论回复</button>
@@ -367,6 +386,25 @@
                 <button class="copy-btn" type="button" data-copy="imagePromptOutput">复制</button>
               </div>
               <pre id="imagePromptOutput"></pre>
+            </div>
+          </section>
+
+          <section id="ai" class="tab-panel">
+            <div class="poster-layout">
+              <div class="result-card">
+                <div class="result-header">
+                  <h3>AI 文案输出</h3>
+                  <button class="copy-btn" type="button" data-copy="aiTextOutput">复制</button>
+                </div>
+                <pre id="aiTextOutput">尚未调用大模型。</pre>
+              </div>
+              <div class="result-card compact">
+                <div class="result-header">
+                  <h3>AI 主视觉</h3>
+                  <button id="downloadAiImageBtn" class="copy-btn" type="button">下载图片</button>
+                </div>
+                <div id="aiImagePreview" class="ai-image-preview">尚未生成图片</div>
+              </div>
             </div>
           </section>
 
