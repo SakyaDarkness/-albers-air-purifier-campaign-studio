@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>艾伯斯空气净化器宣传生成器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="control-panel" aria-label="生成参数">
+        <div class="brand-lockup">
+          <div class="device-mark" aria-hidden="true"><span></span><i></i></div>
+          <div>
+            <p class="eyebrow">Albers Campaign Studio</p>
+            <h1>艾伯斯空气净化器宣传生成器</h1>
+          </div>
+        </div>
+
+        <section class="panel-section">
+          <h2>项目信息</h2>
+          <div class="form-grid">
+            <label>
+              项目名称
+              <input id="campaignName" type="text" value="618 家庭空气焕新" />
+            </label>
+            <label>
+              行动引导
+              <input id="cta" type="text" value="评论“净化器”领取参数表" />
+            </label>
+            <label>
+              承接方式
+              <input id="leadChannel" type="text" value="私信发送参数表，必要时引导企业微信咨询" />
+            </label>
+            <label>
+              主推优惠
+              <input id="offer" type="text" value="活动价以实时页面为准，可领取滤芯成本清单" />
+            </label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title-row">
+            <h2>项目库</h2>
+            <button id="saveProjectLibraryBtn" class="text-btn" type="button">存入项目库</button>
+          </div>
+          <label>
+            已保存项目
+            <select id="projectLibrarySelect"></select>
+          </label>
+          <div class="action-row">
+            <button id="loadProjectLibraryBtn" class="text-btn grow" type="button">载入</button>
+            <button id="duplicateProjectBtn" class="text-btn grow" type="button">复制</button>
+            <button id="deleteProjectBtn" class="text-btn grow" type="button">删除</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2>产品信息</h2>
+          <div class="form-grid">
+            <label>
+              品牌
+              <input id="brand" type="text" value="艾伯斯" />
+            </label>
+            <label>
+              型号
+              <input id="model" type="text" value="Airsafe Pro X1" />
+            </label>
+            <label>
+              目标人群
+              <input id="audience" type="text" value="新房家庭、母婴家庭、养宠家庭" />
+            </label>
+            <label>
+              使用场景
+              <input id="scene" type="text" value="客厅、卧室、新装修房间" />
+            </label>
+            <label>
+              CADR 值
+              <input id="cadr" type="number" min="0" value="720" />
+            </label>
+            <label>
+              适用面积
+              <input id="area" type="number" min="0" value="86" />
+            </label>
+            <label>
+              噪音 dB
+              <input id="noise" type="number" min="0" value="29" />
+            </label>
+            <label>
+              参考价格
+              <input id="price" type="number" min="0" value="2999" />
+            </label>
+          </div>
+          <label class="full-label">
+            核心卖点
+            <textarea id="features" rows="3">高 CADR 快速净化、H13 HEPA 复合滤芯、甲醛/PM2.5 双数显、低噪睡眠模式、滤芯寿命提醒</textarea>
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <h2>使用成本</h2>
+          <div class="form-grid">
+            <label>
+              滤芯价格
+              <input id="filterPrice" type="number" min="0" value="399" />
+            </label>
+            <label>
+              滤芯寿命（月）
+              <input id="filterLife" type="number" min="1" value="12" />
+            </label>
+            <label>
+              额定功率 W
+              <input id="powerWatts" type="number" min="0" value="55" />
+            </label>
+            <label>
+              每日使用小时
+              <input id="hoursPerDay" type="number" min="0" max="24" step="0.5" value="8" />
+            </label>
+            <label>
+              电价（元/度）
+              <input id="electricityPrice" type="number" min="0" step="0.01" value="0.6" />
+            </label>
+            <label>
+              质保年限
+              <input id="warrantyYears" type="number" min="0" step="0.5" value="2" />
+            </label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2>投放目标</h2>
+          <div class="form-grid">
+            <label>
+              预算
+              <input id="adBudget" type="number" min="0" value="3000" />
+            </label>
+            <label>
+              预估点击成本
+              <input id="costPerClick" type="number" min="0" step="0.1" value="1.8" />
+            </label>
+            <label>
+              点击转线索率 %
+              <input id="leadRate" type="number" min="0" max="100" step="0.1" value="8" />
+            </label>
+            <label>
+              线索成交率 %
+              <input id="dealRate" type="number" min="0" max="100" step="0.1" value="12" />
+            </label>
+            <label>
+              客单价
+              <input id="averageOrderValue" type="number" min="0" value="2999" />
+            </label>
+            <label>
+              毛利率 %
+              <input id="grossMarginRate" type="number" min="0" max="100" step="0.1" value="28" />
+            </label>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <h2>生成设置</h2>
+          <div class="segmented" role="radiogroup" aria-label="平台">
+            <label><input type="radio" name="platform" value="小红书" checked />小红书</label>
+            <label><input type="radio" name="platform" value="朋友圈" />朋友圈</label>
+            <label><input type="radio" name="platform" value="抖音图文" />抖音图文</label>
+          </div>
+          <div class="segmented" role="radiogroup" aria-label="语气">
+            <label><input type="radio" name="tone" value="专业可信" checked />专业</label>
+            <label><input type="radio" name="tone" value="生活种草" />种草</label>
+            <label><input type="radio" name="tone" value="理性对比" />理性</label>
+          </div>
+          <div class="form-grid">
+            <label>
+              海报配色
+              <select id="posterTheme">
+                <option value="teal">净透青绿</option>
+                <option value="blue">科技蓝</option>
+                <option value="charcoal">高级灰</option>
+                <option value="warm">暖居橙</option>
+              </select>
+            </label>
+            <label>
+              海报版式
+              <select id="posterLayout">
+                <option value="metric">参数优先</option>
+                <option value="scene">场景优先</option>
+                <option value="cost">成本优先</option>
+              </select>
+            </label>
+          </div>
+          <label class="full-label">
+            合规风险词库
+            <textarea id="riskWords" rows="2">最强、第一、永久、彻底、100%、零甲醛、医学级、治愈、根除</textarea>
+          </label>
+          <div class="action-row">
+            <button id="generateBtn" class="primary-btn" type="button">生成内容</button>
+            <button id="saveBtn" class="text-btn" type="button">保存</button>
+          </div>
+          <div class="action-row">
+            <button id="exportBtn" class="text-btn grow" type="button">导出全部文案</button>
+            <button id="downloadSvgBtn" class="text-btn grow" type="button">下载海报 SVG</button>
+          </div>
+          <div class="action-row">
+            <button id="exportProjectBtn" class="text-btn grow" type="button">导出项目</button>
+            <button id="importProjectBtn" class="text-btn grow" type="button">导入项目</button>
+            <input id="projectFileInput" class="visually-hidden" type="file" accept="application/json,.json" />
+          </div>
+          <div class="action-row">
+            <button id="exportCsvBtn" class="text-btn grow" type="button">导出表格 CSV</button>
+            <button id="printBtn" class="text-btn grow" type="button">打印汇报页</button>
+          </div>
+          <div class="action-row">
+            <button id="exportExcelBtn" class="text-btn grow" type="button">导出 Excel</button>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title-row">
+            <h2>证据素材</h2>
+            <button id="addAssetBtn" class="text-btn" type="button">上传</button>
+            <input id="assetFileInput" class="visually-hidden" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt" />
+          </div>
+          <label>
+            素材备注
+            <input id="assetNote" type="text" value="检测报告/竞品截图/价格截图" />
+          </label>
+          <div id="assetList" class="asset-list"></div>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title-row">
+            <h2>CRM 线索</h2>
+            <button id="addLeadBtn" class="text-btn" type="button">添加线索</button>
+          </div>
+          <div class="form-grid">
+            <label>
+              昵称/客户
+              <input id="leadName" type="text" value="小红书用户" />
+            </label>
+            <label>
+              来源
+              <input id="leadSource" type="text" value="评论区" />
+            </label>
+            <label>
+              关注点
+              <input id="leadInterest" type="text" value="新房面积和滤芯成本" />
+            </label>
+            <label>
+              状态
+              <select id="leadStatus">
+                <option value="待联系">待联系</option>
+                <option value="已私信">已私信</option>
+                <option value="跟进中">跟进中</option>
+                <option value="已成交">已成交</option>
+                <option value="无效">无效</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            下一步
+            <input id="leadNextStep" type="text" value="发送参数表并询问户型面积" />
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <div class="section-title-row">
+            <h2>竞品参数</h2>
+            <button id="addCompetitorBtn" class="text-btn" type="button">添加</button>
+          </div>
+          <div id="competitorList" class="competitor-list"></div>
+        </section>
+      </aside>
+
+      <section class="workspace" aria-label="生成结果">
+        <header class="workspace-header">
+          <div>
+            <p class="eyebrow" id="campaignMeta">基于当前录入参数生成</p>
+            <h2 id="campaignTitle">艾伯斯 Airsafe Pro X1 推广草稿</h2>
+          </div>
+          <div class="status-pill">发布前核对检测报告、售价和竞品参数</div>
+        </header>
+
+        <nav class="tabs" aria-label="结果分类">
+          <button class="tab active" type="button" data-tab="copy">图文</button>
+          <button class="tab" type="button" data-tab="overview">项目总览</button>
+          <button class="tab" type="button" data-tab="brief">销售简报</button>
+          <button class="tab" type="button" data-tab="variants">文案版本</button>
+          <button class="tab" type="button" data-tab="poster">海报</button>
+          <button class="tab" type="button" data-tab="imagePrompt">生图提示词</button>
+          <button class="tab" type="button" data-tab="comments">评论</button>
+          <button class="tab" type="button" data-tab="matrix">评论矩阵</button>
+          <button class="tab" type="button" data-tab="replies">评论回复</button>
+          <button class="tab" type="button" data-tab="compare">竞品对比</button>
+          <button class="tab" type="button" data-tab="cost">成本对比</button>
+          <button class="tab" type="button" data-tab="schedule">发布排期</button>
+          <button class="tab" type="button" data-tab="shooting">拍摄清单</button>
+          <button class="tab" type="button" data-tab="leads">线索承接</button>
+          <button class="tab" type="button" data-tab="kpi">投放预估</button>
+          <button class="tab" type="button" data-tab="retro">复盘模板</button>
+          <button class="tab" type="button" data-tab="tasks">执行看板</button>
+          <button class="tab" type="button" data-tab="report">一页汇报</button>
+          <button class="tab" type="button" data-tab="dashboard">数据仪表盘</button>
+          <button class="tab" type="button" data-tab="platform">平台检查</button>
+          <button class="tab" type="button" data-tab="crm">CRM 线索</button>
+          <button class="tab" type="button" data-tab="review">发布审核</button>
+        </nav>
+
+        <div class="tab-panels">
+          <section id="copy" class="tab-panel active">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>宣传图文文案</h3>
+                <button class="copy-btn" type="button" data-copy="postOutput">复制</button>
+              </div>
+              <pre id="postOutput"></pre>
+            </div>
+          </section>
+
+          <section id="overview" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>项目总览</h3>
+                <button class="copy-btn" type="button" data-copy="overviewOutput">复制</button>
+              </div>
+              <div id="overviewCards" class="summary-grid" aria-label="项目关键指标"></div>
+              <pre id="overviewOutput"></pre>
+            </div>
+          </section>
+
+          <section id="brief" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>销售简报</h3>
+                <button class="copy-btn" type="button" data-copy="briefOutput">复制</button>
+              </div>
+              <pre id="briefOutput"></pre>
+            </div>
+          </section>
+
+          <section id="variants" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>多版本标题与开头</h3>
+                <button class="copy-btn" type="button" data-copy="variantsOutput">复制</button>
+              </div>
+              <pre id="variantsOutput"></pre>
+            </div>
+          </section>
+
+          <section id="poster" class="tab-panel">
+            <div class="poster-layout">
+              <article id="posterPreview" class="poster-preview" aria-label="海报预览"></article>
+              <div class="result-card compact">
+                <div class="result-header">
+                  <h3>图片文字分镜</h3>
+                  <button class="copy-btn" type="button" data-copy="posterScript">复制</button>
+                </div>
+                <pre id="posterScript"></pre>
+              </div>
+            </div>
+          </section>
+
+          <section id="imagePrompt" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>AI 生图提示词</h3>
+                <button class="copy-btn" type="button" data-copy="imagePromptOutput">复制</button>
+              </div>
+              <pre id="imagePromptOutput"></pre>
+            </div>
+          </section>
+
+          <section id="comments" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>互动评论话题</h3>
+                <button class="copy-btn" type="button" data-copy="commentsOutput">复制</button>
+              </div>
+              <pre id="commentsOutput"></pre>
+            </div>
+          </section>
+
+          <section id="matrix" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>评论矩阵</h3>
+                <button class="copy-btn" type="button" data-copy="matrixOutput">复制</button>
+              </div>
+              <pre id="matrixOutput"></pre>
+            </div>
+          </section>
+
+          <section id="replies" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>官方回复与二级评论回复</h3>
+                <button class="copy-btn" type="button" data-copy="repliesOutput">复制</button>
+              </div>
+              <pre id="repliesOutput"></pre>
+            </div>
+          </section>
+
+          <section id="compare" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>竞品对比结论</h3>
+                <button class="copy-btn" type="button" data-copy="compareOutput">复制</button>
+              </div>
+              <div id="compareTable" class="compare-table" aria-label="竞品参数表"></div>
+              <pre id="compareOutput"></pre>
+            </div>
+          </section>
+
+          <section id="cost" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>年使用成本对比</h3>
+                <button class="copy-btn" type="button" data-copy="costOutput">复制</button>
+              </div>
+              <div id="costTable" class="compare-table" aria-label="年使用成本表"></div>
+              <pre id="costOutput"></pre>
+            </div>
+          </section>
+
+          <section id="schedule" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>7 天发布排期</h3>
+                <button class="copy-btn" type="button" data-copy="scheduleOutput">复制</button>
+              </div>
+              <div id="scheduleTable" class="compare-table" aria-label="发布排期表"></div>
+              <pre id="scheduleOutput"></pre>
+            </div>
+          </section>
+
+          <section id="shooting" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>拍摄清单与分镜</h3>
+                <button class="copy-btn" type="button" data-copy="shootingOutput">复制</button>
+              </div>
+              <pre id="shootingOutput"></pre>
+            </div>
+          </section>
+
+          <section id="leads" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>线索承接话术</h3>
+                <button class="copy-btn" type="button" data-copy="leadsOutput">复制</button>
+              </div>
+              <pre id="leadsOutput"></pre>
+            </div>
+          </section>
+
+          <section id="kpi" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>投放 KPI 预估</h3>
+                <button class="copy-btn" type="button" data-copy="kpiOutput">复制</button>
+              </div>
+              <div id="kpiTable" class="compare-table" aria-label="投放 KPI 表"></div>
+              <pre id="kpiOutput"></pre>
+            </div>
+          </section>
+
+          <section id="retro" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>投放复盘模板</h3>
+                <button class="copy-btn" type="button" data-copy="retroOutput">复制</button>
+              </div>
+              <pre id="retroOutput"></pre>
+            </div>
+          </section>
+
+          <section id="tasks" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>执行看板</h3>
+                <button class="copy-btn" type="button" data-copy="tasksOutput">复制</button>
+              </div>
+              <div id="tasksTable" class="compare-table" aria-label="执行任务表"></div>
+              <pre id="tasksOutput"></pre>
+            </div>
+          </section>
+
+          <section id="report" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>一页汇报</h3>
+                <button class="copy-btn" type="button" data-copy="reportOutput">复制</button>
+              </div>
+              <div id="reportSheet" class="report-sheet" aria-label="一页汇报预览"></div>
+              <pre id="reportOutput"></pre>
+            </div>
+          </section>
+
+          <section id="dashboard" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>数据仪表盘</h3>
+                <button class="copy-btn" type="button" data-copy="dashboardOutput">复制</button>
+              </div>
+              <div id="dashboardView" class="dashboard-view" aria-label="数据仪表盘"></div>
+              <pre id="dashboardOutput"></pre>
+            </div>
+          </section>
+
+          <section id="platform" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>平台发布检查</h3>
+                <button class="copy-btn" type="button" data-copy="platformOutput">复制</button>
+              </div>
+              <pre id="platformOutput"></pre>
+            </div>
+          </section>
+
+          <section id="crm" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>CRM 线索表</h3>
+                <button class="copy-btn" type="button" data-copy="crmOutput">复制</button>
+              </div>
+              <div id="crmTable" class="compare-table" aria-label="CRM 线索表"></div>
+              <pre id="crmOutput"></pre>
+            </div>
+          </section>
+
+          <section id="review" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>发布审核清单</h3>
+                <button class="copy-btn" type="button" data-copy="reviewOutput">复制</button>
+              </div>
+              <pre id="reviewOutput"></pre>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
