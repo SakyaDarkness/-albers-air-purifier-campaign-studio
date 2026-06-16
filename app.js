@@ -43,6 +43,8 @@ const defaultCompetitors = [
 let competitors = structuredClone(defaultCompetitors);
 let evidenceAssets = [];
 let leadRecords = [];
+let companyDatabase = null;
+let selectedCompanyProductId = "";
 
 const fields = {
   campaignName: document.querySelector("#campaignName"),
@@ -114,6 +116,9 @@ const outputs = {
   platform: document.querySelector("#platformOutput"),
   crm: document.querySelector("#crmOutput"),
   crmTable: document.querySelector("#crmTable"),
+  companySummary: document.querySelector("#companyDbSummary"),
+  companyTable: document.querySelector("#companyDbTable"),
+  companyOutput: document.querySelector("#companyDbOutput"),
   review: document.querySelector("#reviewOutput"),
   poster: document.querySelector("#posterPreview"),
 };
@@ -125,6 +130,9 @@ const toast = document.querySelector("#toast");
 const aiStatus = document.querySelector("#aiStatus");
 const aiTextOutput = document.querySelector("#aiTextOutput");
 const aiImagePreview = document.querySelector("#aiImagePreview");
+const companyGroupSelect = document.querySelector("#companyGroupSelect");
+const companyRoleSelect = document.querySelector("#companyRoleSelect");
+const companyProductSelect = document.querySelector("#companyProductSelect");
 
 let lastAiImage = "";
 
@@ -472,6 +480,247 @@ function renderProjectLibrary() {
         .map((project) => `<option value="${escapeHtml(project.id)}">${escapeHtml(project.name)}｜${escapeHtml(project.updatedAt)}</option>`)
         .join("")
     : `<option value="">暂无保存项目</option>`;
+}
+
+function metricNumbers(value) {
+  return [...String(value || "").replace(/,/g, "").matchAll(/\d+(?:\.\d+)?/g)].map((match) => Number(match[0]));
+}
+
+function firstMetricNumber(value) {
+  return metricNumbers(value)[0] || 0;
+}
+
+function minMetricNumber(value) {
+  const numbers = metricNumbers(value);
+  return numbers.length ? Math.min(...numbers) : 0;
+}
+
+function maxMetricNumber(value) {
+  const numbers = metricNumbers(value);
+  return numbers.length ? Math.max(...numbers) : 0;
+}
+
+function companyRoleLabel(product) {
+  return product?.role === "own" ? "艾泊斯" : "竞品";
+}
+
+function companyAttr(product, label) {
+  return product?.attributes?.[label] || "";
+}
+
+function findCompanyAttr(product, pattern) {
+  const entry = Object.entries(product?.attributes || {}).find(([key]) => pattern.test(key));
+  return entry ? entry[1] : "";
+}
+
+function companyFeatureSummary(product) {
+  return companyAttr(product, "主要核心卖点")
+    .split(/\r?\n|[;；]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 8)
+    .join("、");
+}
+
+function companyBestCadr(product) {
+  return (
+    firstMetricNumber(product?.metrics?.particleCadr) ||
+    firstMetricNumber(product?.metrics?.formaldehydeCadr) ||
+    firstMetricNumber(product?.metrics?.tvocCadr) ||
+    firstMetricNumber(product?.metrics?.benzeneCadr)
+  );
+}
+
+function companyScene(product) {
+  const type = product?.productType || "";
+  if (type.includes("pet")) return "养宠家庭、客厅、卧室、猫砂盆周边";
+  if (type.includes("formaldehyde")) return "新装修房间、客厅、卧室、母婴家庭";
+  if (type.includes("all-purpose")) return "全屋空气管理、客厅、卧室、办公室";
+  return "客厅、卧室、家庭空气管理";
+}
+
+function companyVisibleProducts() {
+  if (!companyDatabase) return [];
+  const group = companyGroupSelect.value;
+  const role = companyRoleSelect.value;
+  return companyDatabase.products.filter((product) => {
+    const groupMatched = !group || product.group === group;
+    const roleMatched = role === "all" || product.role === role;
+    return groupMatched && roleMatched;
+  });
+}
+
+function selectedCompanyProduct() {
+  if (!companyDatabase) return null;
+  return companyDatabase.products.find((product) => product.id === selectedCompanyProductId) || null;
+}
+
+function renderCompanyGroups() {
+  if (!companyDatabase) return;
+  const currentGroup = companyGroupSelect.value || companyDatabase.sheets[0]?.name || "";
+  companyGroupSelect.innerHTML = companyDatabase.sheets
+    .map((sheet) => `<option value="${escapeHtml(sheet.name)}">${escapeHtml(sheet.name)}</option>`)
+    .join("");
+  companyGroupSelect.value = companyDatabase.sheets.some((sheet) => sheet.name === currentGroup)
+    ? currentGroup
+    : companyDatabase.sheets[0]?.name || "";
+}
+
+function renderCompanyDatabase() {
+  if (!companyDatabase) {
+    outputs.companyOutput.textContent = "公司资料库加载中...";
+    return;
+  }
+
+  const products = companyVisibleProducts();
+  if (!products.some((product) => product.id === selectedCompanyProductId)) {
+    selectedCompanyProductId = products[0]?.id || "";
+  }
+
+  companyProductSelect.innerHTML = products.length
+    ? products
+        .map((product) => `<option value="${escapeHtml(product.id)}">${escapeHtml(companyRoleLabel(product))} / ${escapeHtml(product.model)}</option>`)
+        .join("")
+    : `<option value="">暂无产品</option>`;
+  companyProductSelect.value = selectedCompanyProductId;
+
+  const groupProducts = companyDatabase.products.filter((product) => product.group === companyGroupSelect.value);
+  const ownProducts = groupProducts.filter((product) => product.role === "own");
+  const competitorProducts = groupProducts.filter((product) => product.role === "competitor");
+  const selected = selectedCompanyProduct();
+
+  outputs.companySummary.innerHTML = [
+    ["当前分组", groupProducts.length, companyGroupSelect.value || "未选择"],
+    ["艾泊斯机型", ownProducts.length, ownProducts.map((product) => product.model).join("、") || "未记录"],
+    ["竞品数量", competitorProducts.length, "可一键写入竞品对比"],
+  ]
+    .map(
+      ([label, value, note]) => `
+        <div class="summary-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <em>${escapeHtml(note)}</em>
+        </div>
+      `,
+    )
+    .join("");
+
+  outputs.companyTable.innerHTML = products.length
+    ? products
+        .map((product) => {
+          const selectedClass = product.id === selectedCompanyProductId ? " selected" : "";
+          const features = companyFeatureSummary(product) || "未记录核心卖点";
+          const image = product.image
+            ? `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.model)}" loading="lazy" />`
+            : `<div class="database-image-placeholder">无图</div>`;
+          return `
+            <article class="database-card${selectedClass}" data-company-product="${escapeHtml(product.id)}">
+              <div class="database-image">${image}</div>
+              <div class="database-card-body">
+                <div class="database-card-title">
+                  <strong>${escapeHtml(product.model)}</strong>
+                  <span>${escapeHtml(companyRoleLabel(product))}</span>
+                </div>
+                <dl>
+                  <div><dt>颗粒物 CADR</dt><dd>${escapeHtml(product.metrics?.particleCadr || "-")}</dd></div>
+                  <div><dt>甲醛 CADR</dt><dd>${escapeHtml(product.metrics?.formaldehydeCadr || "-")}</dd></div>
+                  <div><dt>适用面积</dt><dd>${escapeHtml(product.metrics?.area || "-")}</dd></div>
+                  <div><dt>价格</dt><dd>${escapeHtml(product.metrics?.price || "-")}</dd></div>
+                </dl>
+                <p>${escapeHtml(features)}</p>
+                ${product.link ? `<a href="${escapeHtml(product.link)}" target="_blank" rel="noreferrer">查看商品链接</a>` : ""}
+              </div>
+            </article>
+          `;
+        })
+        .join("")
+    : `<p class="empty-note">当前筛选条件下没有产品。</p>`;
+
+  outputs.companyOutput.textContent = selected
+    ? [
+        `选中：${companyRoleLabel(selected)} / ${selected.model}`,
+        `分组：${selected.group}`,
+        `CADR：颗粒物 ${selected.metrics?.particleCadr || "-"}；甲醛 ${selected.metrics?.formaldehydeCadr || "-"}`,
+        `适用面积：${selected.metrics?.area || "-"}`,
+        `价格：${selected.metrics?.price || "-"}`,
+        `滤芯价格：${selected.metrics?.filterPrice || "-"}`,
+        `核心卖点：${companyFeatureSummary(selected) || "未记录"}`,
+      ].join("\n")
+    : "未选择产品。";
+}
+
+async function loadCompanyDatabase() {
+  if (!companyGroupSelect) return;
+  outputs.companyOutput.textContent = "公司资料库加载中...";
+  try {
+    const response = await fetch("data/company-database.json", { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    companyDatabase = await response.json();
+    renderCompanyGroups();
+    renderCompanyDatabase();
+  } catch (error) {
+    outputs.companySummary.innerHTML = "";
+    outputs.companyTable.innerHTML = `<p class="empty-note">公司资料库暂未加载。请确认 data/company-database.json 已生成，并通过本地服务打开页面。</p>`;
+    outputs.companyOutput.textContent = `加载失败：${error.message}`;
+  }
+}
+
+function companyProductToCompetitor(product) {
+  return normalizeCompetitor({
+    name: product.model,
+    cadr: companyBestCadr(product),
+    area: maxMetricNumber(product.metrics?.area),
+    noise: minMetricNumber(product.metrics?.noise),
+    price: product.metrics?.priceNumber || 0,
+    filterPrice: product.metrics?.filterPriceNumber || 0,
+    filterLife: 12,
+    powerWatts: firstMetricNumber(findCompanyAttr(product, /功率/)),
+    source: "公司竞品表",
+    date: "2026-04-01",
+  });
+}
+
+function applySelectedCompanyProduct() {
+  const selected = selectedCompanyProduct();
+  if (!selected) {
+    showToast("请先选择公司资料库里的产品");
+    return;
+  }
+
+  const brand = selected.brand || (selected.role === "own" ? "艾泊斯" : "");
+  fields.campaignName.value = `${brand || "公司产品"} ${selected.model} 宣传素材`;
+  fields.brand.value = brand || "艾泊斯";
+  fields.model.value = selected.model;
+  fields.scene.value = companyScene(selected);
+  fields.cadr.value = companyBestCadr(selected);
+  fields.area.value = maxMetricNumber(selected.metrics?.area);
+  fields.noise.value = minMetricNumber(selected.metrics?.noise);
+  fields.price.value = selected.metrics?.priceNumber || "";
+  fields.filterPrice.value = selected.metrics?.filterPriceNumber || "";
+  fields.powerWatts.value = firstMetricNumber(findCompanyAttr(selected, /功率/)) || fields.powerWatts.value;
+  fields.features.value = companyFeatureSummary(selected) || fields.features.value;
+
+  const peers = companyDatabase.products.filter((product) => {
+    if (product.group !== selected.group || product.id === selected.id) return false;
+    return selected.role === "own" ? product.role === "competitor" : true;
+  });
+  competitors = peers.map(companyProductToCompetitor);
+
+  const sourceName = companyDatabase.sources?.xlsx || "空气净化器竞品对比表";
+  if (!evidenceAssets.some((asset) => asset.name === sourceName)) {
+    evidenceAssets.push({
+      name: sourceName,
+      type: "company-database",
+      sizeLabel: "已导入",
+      note: `${selected.group} / ${selected.model} 产品参数与竞品对比`,
+      addedAt: new Date().toLocaleDateString("zh-CN"),
+    });
+  }
+
+  renderCompetitors();
+  renderAssets();
+  generateAll();
+  showToast("公司资料已套用到当前项目");
 }
 
 function saveCurrentProjectToLibrary() {
@@ -1910,7 +2159,10 @@ function showToast(message) {
 }
 
 async function copyText(id) {
-  const text = document.querySelector(`#${id}`).textContent;
+  if (!id) return;
+  const target = document.querySelector(`#${id}`);
+  if (!target) return;
+  const text = target.textContent;
   if (navigator.clipboard?.writeText) {
     try {
       await navigator.clipboard.writeText(text);
@@ -2312,6 +2564,7 @@ document.querySelector("#saveProjectLibraryBtn").addEventListener("click", saveC
 document.querySelector("#loadProjectLibraryBtn").addEventListener("click", loadProjectFromLibrary);
 document.querySelector("#duplicateProjectBtn").addEventListener("click", duplicateProjectFromLibrary);
 document.querySelector("#deleteProjectBtn").addEventListener("click", deleteProjectFromLibrary);
+document.querySelector("#applyCompanyProductBtn").addEventListener("click", applySelectedCompanyProduct);
 document.querySelector("#importProjectBtn").addEventListener("click", () => {
   document.querySelector("#projectFileInput").click();
 });
@@ -2364,6 +2617,21 @@ assetList.addEventListener("click", (event) => {
   generateAll();
 });
 
+companyGroupSelect.addEventListener("change", renderCompanyDatabase);
+companyRoleSelect.addEventListener("change", renderCompanyDatabase);
+companyProductSelect.addEventListener("change", () => {
+  selectedCompanyProductId = companyProductSelect.value;
+  renderCompanyDatabase();
+});
+outputs.companyTable.addEventListener("click", (event) => {
+  if (event.target.closest("a")) return;
+  const card = event.target.closest("[data-company-product]");
+  if (!card) return;
+  selectedCompanyProductId = card.dataset.companyProduct;
+  companyProductSelect.value = selectedCompanyProductId;
+  renderCompanyDatabase();
+});
+
 Object.values(fields).forEach((field) => field.addEventListener("input", generateAll));
 document.querySelectorAll('input[name="platform"], input[name="tone"]').forEach((field) => {
   field.addEventListener("change", generateAll);
@@ -2385,4 +2653,5 @@ renderCompetitors();
 renderAssets();
 renderProjectLibrary();
 renderLeads();
+loadCompanyDatabase();
 generateAll();

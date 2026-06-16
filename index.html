@@ -321,6 +321,7 @@
           <button class="tab" type="button" data-tab="dashboard">数据仪表盘</button>
           <button class="tab" type="button" data-tab="platform">平台检查</button>
           <button class="tab" type="button" data-tab="crm">CRM 线索</button>
+          <button class="tab" type="button" data-tab="database">公司资料库</button>
           <button class="tab" type="button" data-tab="review">发布审核</button>
         </nav>
 
@@ -563,6 +564,36 @@
               </div>
               <div id="crmTable" class="compare-table" aria-label="CRM 线索表"></div>
               <pre id="crmOutput"></pre>
+            </div>
+          </section>
+
+          <section id="database" class="tab-panel">
+            <div class="result-card">
+              <div class="result-header">
+                <h3>公司产品资料库</h3>
+                <button id="applyCompanyProductBtn" class="copy-btn" type="button">套用选中产品</button>
+              </div>
+              <div class="database-toolbar">
+                <label>
+                  分组
+                  <select id="companyGroupSelect"></select>
+                </label>
+                <label>
+                  类型
+                  <select id="companyRoleSelect">
+                    <option value="all">全部</option>
+                    <option value="own">艾泊斯</option>
+                    <option value="competitor">竞品</option>
+                  </select>
+                </label>
+                <label>
+                  产品
+                  <select id="companyProductSelect"></select>
+                </label>
+              </div>
+              <div id="companyDbSummary" class="summary-grid" aria-label="公司资料库摘要"></div>
+              <div id="companyDbTable" class="database-grid" aria-label="公司产品资料库列表"></div>
+              <pre id="companyDbOutput"></pre>
             </div>
           </section>
 

@@ -499,6 +499,140 @@ textarea:focus {
   font-style: normal;
 }
 
+.database-toolbar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.database-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.database-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: #f7faf9;
+}
+
+.database-card {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.database-card:hover,
+.database-card.selected {
+  border-color: #0d9488;
+  box-shadow: 0 14px 28px rgba(13, 148, 136, 0.12);
+  transform: translateY(-1px);
+}
+
+.database-image,
+.database-image-placeholder {
+  width: 104px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfc;
+  overflow: hidden;
+}
+
+.database-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.database-image-placeholder {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.database-card-body {
+  min-width: 0;
+}
+
+.database-card-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.database-card-title strong {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.database-card-title span {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #e6f7f4;
+  color: #0a5f58;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.database-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.database-card dt,
+.database-card dd {
+  margin: 0;
+}
+
+.database-card dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.database-card dd {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.database-card p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.database-card a {
+  color: #0a5f58;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .report-sheet {
   padding: 18px;
   border-bottom: 1px solid var(--line);
@@ -881,6 +1015,24 @@ pre {
   }
 
   .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .database-toolbar,
+  .database-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .database-card {
+    grid-template-columns: 88px minmax(0, 1fr);
+  }
+
+  .database-image,
+  .database-image-placeholder {
+    width: 88px;
+  }
+
+  .database-card dl {
     grid-template-columns: 1fr;
   }
 

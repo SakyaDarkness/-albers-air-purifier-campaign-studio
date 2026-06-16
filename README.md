@@ -51,6 +51,8 @@ node dev-server.mjs
 - 管理本地项目库，可保存、载入、复制、删除多个活动项目
 - 管理 CRM 线索，记录来源、关注点、状态和下一步动作
 - 调整海报配色和版式
+- 导入公司 Excel/RAR 资料库，按 S9、AI370、AI600、AI700 分组查看产品和竞品图片
+- 一键把公司资料库选中的机型套用到当前项目，并把同组竞品写入竞品对比
 - 生成项目总览，汇总完备度、成本、投放、竞品和下一步动作
 - 生成销售简报，方便导购、客服或朋友快速掌握产品话术
 - 录入品牌、型号、目标人群、场景、CADR、适用面积、噪音、价格和核心卖点
@@ -83,6 +85,23 @@ node dev-server.mjs
 - 一键导出全部文案为 TXT
 - 导出和导入项目 JSON，方便迁移或复用活动配置
 - 生成发布审核清单，提示缺失参数、来源日期和常见绝对化用词风险
+
+## 公司资料库
+
+当前项目可以把公司产品资料导入为本地 JSON 数据库和相对素材路径：
+
+```powershell
+node scripts/import-company-materials.mjs "C:\path\to\空气净化器竞品对比表-带图.xlsx" "C:\path\to\艾泊斯&竞品图.rar"
+```
+
+脚本会读取公司 Excel 竞品表和 RAR 图片包，生成：
+
+- `data/company-database.json`：产品、竞品、参数、卖点、商品链接和图片路径
+- `data/company-database.summary.json`：导入摘要
+- `company-assets/xlsx-media/`：Excel 内嵌产品图
+- `company-assets/rar-images/`：RAR 图片包解压素材
+
+数据库只保存源文件名和相对素材路径，不保存本机微信文件绝对路径。重新导入后刷新页面，在“公司资料库”标签里选择分组和产品即可套用。
 
 ## 发布注意
 

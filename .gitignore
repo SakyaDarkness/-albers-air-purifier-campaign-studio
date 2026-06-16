@@ -7,3 +7,4 @@ Thumbs.db
 *.tmp
 .env
 .env.*
+.tmp_company_import/
