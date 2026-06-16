@@ -31,11 +31,17 @@ http://127.0.0.1:5173/index.html
 ```powershell
 $env:OPENAI_API_KEY="你的 API Key"
 $env:OPENAI_TEXT_MODEL="gpt-4.1"
-$env:OPENAI_IMAGE_MODEL="gpt-image-1"
+$env:OPENAI_IMAGE_MODEL="gpt-image-2"
 node dev-server.mjs
 ```
 
 如果不设置 `OPENAI_API_KEY`，本地模板功能仍然可用，AI 文案/AI 主视觉按钮会提示未配置。
+
+模型分工建议：
+
+- 文案：使用 `OPENAI_TEXT_MODEL`，默认 `gpt-4.1`
+- 主视觉：使用 `OPENAI_IMAGE_MODEL`，默认 `gpt-image-2`
+- 精准表格、竞品对比图、价格图：不要交给图像模型生成文字，使用本地 SVG 渲染
 
 ## 功能
 

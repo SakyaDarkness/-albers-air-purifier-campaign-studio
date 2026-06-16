@@ -51,7 +51,7 @@ async function handleAiStatus(response) {
   sendJson(response, 200, {
     configured: Boolean(process.env.OPENAI_API_KEY),
     textModel: process.env.OPENAI_TEXT_MODEL || "gpt-4.1",
-    imageModel: process.env.OPENAI_IMAGE_MODEL || "gpt-image-1",
+    imageModel: process.env.OPENAI_IMAGE_MODEL || "gpt-image-2",
   });
 }
 
@@ -91,7 +91,7 @@ async function handleAiImage(request, response) {
   }
 
   const body = await readJson(request);
-  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
+  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
   const apiResponse = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
     headers: openAiHeaders(),
