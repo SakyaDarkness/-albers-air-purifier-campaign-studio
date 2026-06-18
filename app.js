@@ -153,6 +153,29 @@ function setSelectedValue(name, value) {
   if (input) input.checked = true;
 }
 
+function cleanFeatureItem(item) {
+  return String(item || "")
+    .trim()
+    .replace(/^[（(]?\d+[）).、:：\s-]+/, "")
+    .trim();
+}
+
+function featureItems(value, limit = 12) {
+  return String(value || "")
+    .split(/\r?\n|[、，,;；]/)
+    .map(cleanFeatureItem)
+    .filter((item) => item && !/^\d+$/.test(item))
+    .slice(0, limit);
+}
+
+function formatDelta(value, digits = 1) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "0";
+  const factor = 10 ** digits;
+  const rounded = Math.round(number * factor) / factor;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(digits);
+}
+
 function productData() {
   return {
     campaignName: textValue("campaignName") || "空气净化器推广",
@@ -181,10 +204,7 @@ function productData() {
     dealRate: numberValue("dealRate"),
     averageOrderValue: numberValue("averageOrderValue"),
     grossMarginRate: numberValue("grossMarginRate"),
-    features: textValue("features")
-      .split(/[、，,\n]/)
-      .map((item) => item.trim())
-      .filter(Boolean),
+    features: featureItems(textValue("features")),
     riskWords: textValue("riskWords")
       .split(/[、，,\n]/)
       .map((item) => item.trim())
@@ -292,10 +312,10 @@ function compareMetrics(product) {
   const cautions = [];
 
   valid.forEach((item) => {
-    if (product.cadr && item.cadr && product.cadr > item.cadr) wins.push(`CADR 比 ${item.name} 高 ${product.cadr - item.cadr}`);
-    if (product.area && item.area && product.area > item.area) wins.push(`适用面积比 ${item.name} 多 ${product.area - item.area}㎡`);
-    if (product.noise && item.noise && product.noise < item.noise) wins.push(`噪音比 ${item.name} 低 ${item.noise - product.noise}dB`);
-    if (product.price && item.price && product.price < item.price) wins.push(`价格比 ${item.name} 低 ${item.price - product.price} 元`);
+    if (product.cadr && item.cadr && product.cadr > item.cadr) wins.push(`CADR 比 ${item.name} 高 ${formatDelta(product.cadr - item.cadr)}`);
+    if (product.area && item.area && product.area > item.area) wins.push(`适用面积比 ${item.name} 多 ${formatDelta(product.area - item.area)}㎡`);
+    if (product.noise && item.noise && product.noise < item.noise) wins.push(`噪音比 ${item.name} 低 ${formatDelta(item.noise - product.noise)}dB`);
+    if (product.price && item.price && product.price < item.price) wins.push(`价格比 ${item.name} 低 ${formatDelta(item.price - product.price, 0)} 元`);
     if (!item.source || !item.date) cautions.push(`${item.name} 缺少参数来源或核对日期`);
   });
 
@@ -514,12 +534,7 @@ function findCompanyAttr(product, pattern) {
 }
 
 function companyFeatureSummary(product) {
-  return companyAttr(product, "主要核心卖点")
-    .split(/\r?\n|[;；]/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .slice(0, 8)
-    .join("、");
+  return featureItems(companyAttr(product, "主要核心卖点"), 8).join("、");
 }
 
 function companyBestCadr(product) {
@@ -1120,11 +1135,11 @@ function makeComparison(product, comparison) {
       const costDiff = productCost - itemCost;
       return `${item.name}
 - 参数来源：${sourceLine(item)}
-- CADR：${product.cadr || "待填"} vs ${item.cadr || "待填"}（${cadr >= 0 ? "+" : ""}${cadr}）
-- 面积：${product.area || "待填"}㎡ vs ${item.area || "待填"}㎡（${area >= 0 ? "+" : ""}${area}㎡）
-- 噪音：${product.noise || "待填"}dB vs ${item.noise || "待填"}dB（${noise >= 0 ? "低 " + noise : "高 " + Math.abs(noise)}dB）
-- 价格：${formatMoney(product.price)} vs ${formatMoney(item.price)}（${price >= 0 ? "低 " + price : "高 " + Math.abs(price)} 元）
-- 估算年使用成本：${moneyNumber(productCost)} vs ${moneyNumber(itemCost)}（${costDiff <= 0 ? "低 " + Math.abs(Math.round(costDiff)) : "高 " + Math.round(costDiff)} 元）`;
+- CADR：${product.cadr || "待填"} vs ${item.cadr || "待填"}（${cadr >= 0 ? "+" : ""}${formatDelta(cadr)}）
+- 面积：${product.area || "待填"}㎡ vs ${item.area || "待填"}㎡（${area >= 0 ? "+" : ""}${formatDelta(area)}㎡）
+- 噪音：${product.noise || "待填"}dB vs ${item.noise || "待填"}dB（${noise >= 0 ? "低 " + formatDelta(noise) : "高 " + formatDelta(Math.abs(noise))}dB）
+- 价格：${formatMoney(product.price)} vs ${formatMoney(item.price)}（${price >= 0 ? "低 " + formatDelta(price, 0) : "高 " + formatDelta(Math.abs(price), 0)} 元）
+- 估算年使用成本：${moneyNumber(productCost)} vs ${moneyNumber(itemCost)}（${costDiff <= 0 ? "低 " + formatDelta(Math.abs(costDiff), 0) : "高 " + formatDelta(costDiff, 0)} 元）`;
     })
     .join("\n\n");
 
